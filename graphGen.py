@@ -22,7 +22,7 @@ def writeLables(lab,file_out):
     for x in lab:
         n=uniform(1,9)
         lab[x]=labels[str(int(n))]
-        file_out.write(str(x) + "[label=\""+lab[x]+"\"]\n")
+        file_out.write(str(x) + " [ label = \" "+lab[x]+" \" ] \n")
 
 
 def graphGenerator(n):

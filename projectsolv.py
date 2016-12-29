@@ -1,10 +1,12 @@
 #Possible solution for Data Mining Project
 import re
+#possible problem with graph duplication
 def readGraph(n):
     graph={}
+    graph_fin={}
     iniz=re.compile('digraph [a-zA-Z]*{')
-    label=re.compile('[0-9]+[\[label=]')
-    finz="}\n"
+    label=re.compile('[0-9]+ [\[label=]')
+    finz="}"
     f=open(n,"r")
     lines=f.readlines()
     for line in lines:
@@ -17,8 +19,9 @@ def readGraph(n):
             else:
                 graph[line_split[0]]=[line_split[2]]
         if(label.match(str(line))):
-            print("labells")
-    return graph
+            line_split1=line.rstrip("\n").split(" ")
+            graph_fin[(line_split1[0],line_split1[5])]=graph[line_split1[0]]
+    return graph_fin
 
 def printResult(graph):
     file_out=open("risGrahp.dot","w")
@@ -32,7 +35,7 @@ def printResult(graph):
 
 def main():
     thr=int(input("Give me your threshold:"))
-    graph=readGraph("../graphGenOut.dot") #read the file
+    graph=readGraph("../graphGenOut.dot") #read the file and built the graph || dictionari key(id,label):[ids,ids,ids]
 
 
 
