@@ -13,6 +13,10 @@ key = (sorgent,destinazione,label arco)
 value = numero di occorrenze
 '''
 import re
+
+#defintion of DFSvist for 
+
+
 def readGraph(n):
     graph={}
     graphLabel={}
@@ -52,26 +56,30 @@ def printResult(graph):
 #-- Main function --#
 def frequentSubG(graph,graphLabel,thr):  #graph=input graph thr=threshold
     fEdges=countFrequentEdges(graph,graphLabel,thr)
-    ##erease the label that don't
-    tempToDel=[k for k in fEdges if fEdges[k]<thr] #temptodel contiene tutti gli archi che non superano la threshold e che poi sono eliminati da fEdges
-    for k in tempToDel: del fEdges[k]
-    print (fEdges)
+
+
 
 #frequentEdges between label --> we are working with directed graph so the order matter
 def countFrequentEdges(graph,graphLabel,thr):
     #bruteforcemode passo tutta la strutture
-    count={}
+    fEdges={}
     for x in graph:
         adjList=graph[x]
         for y in adjList:
             k=(graphLabel[x],graphLabel[y[0]],y[1])
             if(k in count):
-                t=count[k]
-                count[k]=t+1
+                t=fEdges[k]
+                fEdges[k]=t+1
             else:
-                count[k]=1
-    return count
+                fEdges[k]=1
+    tempToDel=[k for k in fEdges if fEdges[k]<thr] #temptodel contiene tutti gli archi che non superano la threshold e che poi sono eliminati da fEdges
+    for k in tempToDel: del fEdges[k]
+    return fEdges
 
+def subGraphExtension(subG,G,thr,fEdges):
+    candidateSet={}
+    res=subG
+    for x in fEdges:
 
 def main():
     thr=int(input("Give me your threshold:"))
