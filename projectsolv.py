@@ -14,8 +14,35 @@ value = numero di occorrenze
 '''
 import re
 
-#defintion of DFSvist for 
+#defintion of DFSvist for
+#COLOR for backedge and forward edge? grey to black, grey to white
+#dfscode visit(timeS,timeD,LabelS,LabelE,LabelD)
+#adapt the dfs code to work only with LabelS
 
+def DFS(graph,graphLabel):
+    discovery={}
+    father={}
+    visit=[]
+    time=0
+    def DFS_Visit(graph,x):
+        nonlocal time
+        time+=1
+        discovery[x]=0
+        for u in graph[x]:
+            if(not(u[0] in discovery)):
+                father[u[0]]=x
+                visit.append((time-1,time,graphLabel[x],u[1],graphLabel[u[0]]))
+                DFS_Visit(graph,u[0])
+    for x in graph:
+        if(not(x in discovery)):
+            DFS_Visit(graph,x)
+
+    #procedure to ordering the dfscode
+    sortDFSVisit(visit)
+
+
+def sortDFSVisit(visit):
+    
 
 def readGraph(n):
     graph={}
@@ -67,7 +94,7 @@ def countFrequentEdges(graph,graphLabel,thr):
         adjList=graph[x]
         for y in adjList:
             k=(graphLabel[x],graphLabel[y[0]],y[1])
-            if(k in count):
+            if(k in fEdges):
                 t=fEdges[k]
                 fEdges[k]=t+1
             else:
@@ -79,12 +106,12 @@ def countFrequentEdges(graph,graphLabel,thr):
 def subGraphExtension(subG,G,thr,fEdges):
     candidateSet={}
     res=subG
-    for x in fEdges:
 
 def main():
     thr=int(input("Give me your threshold:"))
     graph,graphLabel=readGraph("../graphGenOut.dot") #read the file and built the graph || dictionari key(id):[(ids,edLabel),(ids,edLabe),(ids,edLabe)]
-    frequentSubG(graph,graphLabel,thr)
+    DFS(graph,graphLabel)
+    #frequentSubG(graph,graphLabel,thr)
 
 
 if __name__ == "__main__":
