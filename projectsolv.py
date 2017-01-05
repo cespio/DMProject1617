@@ -1,6 +1,18 @@
 #Possible solution for Data Mining Project
+#Data structure
+'''
+graph -> dictionary key-value
+key is the node id and the value is the list of its outgoing edges represented by the tuples (destination_id,edge_label)
+id [(id_dest,label),(id_dest,lable)] one for each node
+
+graphLabel -> hash that map to id to its node label
+id => label
+
+fEdges  key-value
+key = (sorgent,destinazione,label arco)
+value = numero di occorrenze
+'''
 import re
-#possible problem with graph duplication
 def readGraph(n):
     graph={}
     graphLabel={}
@@ -40,7 +52,10 @@ def printResult(graph):
 #-- Main function --#
 def frequentSubG(graph,graphLabel,thr):  #graph=input graph thr=threshold
     fEdges=countFrequentEdges(graph,graphLabel,thr)
-    print(fEdges)# then remove all the elements that have value < thr
+    ##erease the label that don't
+    tempToDel=[k for k in fEdges if fEdges[k]<thr] #temptodel contiene tutti gli archi che non superano la threshold e che poi sono eliminati da fEdges
+    for k in tempToDel: del fEdges[k]
+    print (fEdges)
 
 #frequentEdges between label --> we are working with directed graph so the order matter
 def countFrequentEdges(graph,graphLabel,thr):
