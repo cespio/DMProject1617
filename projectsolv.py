@@ -405,7 +405,6 @@ def subExtSimple(fEdgesSet):
                  m+=1
                  graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[i][1])}
                  graph1={'v0':[('v1',str(fEdgesSet[i][2]),('v2',str(fEdgesSet[j][2])))], 'v1':[], 'v2':[]}
-                 #print(graph1,graphLabel1)
                  R=minDFS(graph1,graphLabel1)
                  if(R not in dfscode):
                      result.append((graph1,graphLabel1))
@@ -430,9 +429,7 @@ def subExtSimple(fEdgesSet):
                      dfscode.add(R)
 
             if ((fEdgesSet[i][0] == fEdgesSet[j][0]) and (fEdgesSet[i][1] != fEdgesSet[j][1])):
-
                  m+=1
-                 #temp1["v0", fEdgesSet[i][0]] = [("v1", fEdgesSet[i][1], fEdgesSet[i][2])] + [("v2", fEdgesSet[j][1], fEdgesSet[j][2])]
                  graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]), 'v2':str(fEdgesSet[j][1])}
                  graph1={'v0':[('v1',str(fEdgesSet[i][2])),('v2',str(fEdgesSet[j][2]))], 'v1':[], 'v2':[]}
                  R=minDFS(graph1,graphLabel1)
@@ -494,7 +491,9 @@ def subExtSimple(fEdgesSet):
                  if(R not in dfscode):
                      result.append((graph1,graphLabel1))
                      dfscode.add(R)
-
+            '''
+            Caso aggiunto da me
+            '''
             if((fEdgesSet[i][0]==fEdgesSet[i][1]) and (fEdgesSet[j][0]!=fEdgesSet[i][0]) and (fEdgesSet[j][1]==fEdgesSet[i][0])):
                 graphLabel1={'v0':str(fEdgesSet[i][0]), 'v1':str(fEdgesSet[i][1]), 'v2':str(fEdgesSet[j][1])}
                 graph1={'v0': [('v1',str(fEdgesSet[i][2]))], 'v2':[('v1',str(fEdgesSet[j][2]))], 'v1':[]}
