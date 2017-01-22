@@ -334,13 +334,13 @@ def readGraph(n):
             graphLabel[line_split1[0]]=line_split1[5]
     return graph,graphLabel
 
-def printResult(graph):
-    file_out=open("risGrahp.dot","w")
+def printResult(graph,graphLabel,i):
+    file_out=open("risGrahp"+str(i)+".dot","w",)
     file_out.write("digraph Ris{\n")
     for x in graph:
         t_l=graph[x]
         for y in t_l:
-            file_out.write(str(x) + " -> " + str(y[0]) + "  [label=\"" + str(y[1]) + "\"];\n")
+            file_out.write(str(graphLabel[x]) + " -> " + str(graphLabel[y[0]]) + "  [label=\"" + str(y[1]) + "\"];\n")
     file_out.write("}")
     file_out.close()
 
@@ -352,12 +352,20 @@ def frequentSubG(graph,graphLabel,thr):  #graph=input graph thr=threshold
     fEdges=countFrequentEdges(graph,graphLabel,thr)
     candidateSet=subGraphExtension(list(fEdges.keys()))
     #foreach element implement the CSP and calculate its frequent -> if it is noto
-    candidateSetApp=copy.shallowcopy(candidateSet)
+    candidateSetApp=copy.copy(candidateSet)
+
+    #sarebbe da implementare strutture condivise per i domini
+    #oppure calcolarli una volta sola prima
+    #domini struttura come 'label':set di nodi
+    domains=getDomains(graphLabel)
     for el in candidateSetApp:
-        if(isFrequent(el)<thr):
-            del candidateSet
-
-
+        if(isFrequent(el,graph,domains)<thr):
+            candidateSet.remove(el)
+    print(candidateSet)
+    i=0
+    for x in candidateSet:
+        printResult(el[0],el[1],i)
+        i+=1
 
 #frequentEdges between label --> we are working with directed graph so the order matter
 def countFrequentEdges(graph,graphLabel,thr):
@@ -376,8 +384,6 @@ def countFrequentEdges(graph,graphLabel,thr):
     for k in tempToDel: del fEdges[k]
     #return fEdgesvisitM.append(DFS_Visit(graph,graphLabel,x,discovery,couple,visit,time)[0])
     return fEdges
-
-
 
 def subGraphExtension(fEdges):
     #print(fEdges)
@@ -548,54 +554,52 @@ def subExtSimple(fEdgesSet):
     print("Lunghezza result ", len(result))
     return result
 
+def getDomains(graphLabel):  #mi ricavo i domini
+    domains={}
+    for x in graphLabel:
+        la=graphLabel[x]
+        if(la not in domains):
+            domains[la]=[x]
+        else:
+            domains[la].append(x)
+    print(domains)
+    return domains
 
 
 
 
 
 
+def isFrequent(el,graph,domains): #funzione fondamentale che permete di calcolare le occorrenze nel grafo, l'elemeno el (grafo+label)
+    subG=el[0]
+    subGLabel=el[1]
+    #node consistency verificata col dominio
+    #arc  consistency da verificare
+    count=[]
+    for source in subG:
+        for dest in subG[source]:
+            #source e dest represent an arch -> dest is a couple
+            count.append(countIntheGraph(subGLabel[source],subGLabel[dest[0]],dest[1],graph,domains))
+    return(min(count))
+
+def countIntheGraph(source,dest,weigth,graph,domains):
+    count=0
+    print(source)
+    print(dest)
+    la=domains[source]
+    lb=domains[dest]
+    for x in la:
+        temp=graph[x]
+        for y in temp:
+            if(y[0] in lb and y[1]==weigth):
+                count+=1
+                break #faccio il break e basta
+    return count
 
 
 def main():
     thr=int(input("Give me your threshold:"))
     graph,graphLabel=readGraph("../graphGenOut.dot") #read the file and built the graph || dictionari key(id):[(ids,edLabel),(ids,edLabe),(ids,edLabe)]
-    #caso grafi not oriented
-    #gl1={'1': 'A','2':'B','3':'C','4':'D','5':'E'}
-    #g1={'1': [('2','a')], '2':[('3','b'),('2','c')],'3':[('5','c'),('1','a')] , '4' :[],'5':[('2','b')]}
-    #gl1={'1': 'A','2':'B', '3':'C'}
-    #g1={'1': [('2','a'),('3','b')], '2':[], '3':[]}
-    #g1={'1': [('2','v')], '2':[('1','b')], '3':[]}
     frequentSubG(graph,graphLabel,thr)
-    '''
-    result=minDFS(g1,gl1)
-    print("The minimum DFS code isssssss: ",result)
-    result=list(chain.from_iterable(result))
-    dfscode=""
-    for k in result:
-        if(isinstance(k,int)):
-            dfscode=dfscode+str(k)
-        else:
-            dfscode+=k
-    print(dfscode)
-    #frequentSubG(graph,graphLabel,thr)
-    '''
-
-'''
-a->b
-|
-v    OK ma lista di lista
-c
-
-a->b->c   1 solo elemento in più
-
-a->c
-   ^
-   | Ok
-   b
-
-a->b
-b->a ok
-'''
-
 if __name__ == "__main__":
     main()
