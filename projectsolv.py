@@ -105,7 +105,7 @@ def DFS(graph,graphLabel,starting):
     visitM=[]
     def DFS_Visit(graph,graphLabel,x,discovery,couple,visit,time): #extend
         #print("Sono in x: ",x)
-        print(graph)
+        #print(graph)
         if(len(graph[x])>0):
             discovery[x]=time
         l=[list(z) for z in list(permutations(graph[x]))]
@@ -340,7 +340,10 @@ def printResult(graph,graphLabel,i):
     for x in graph:
         t_l=graph[x]
         for y in t_l:
-            file_out.write(str(graphLabel[x]) + " -> " + str(graphLabel[y[0]]) + "  [label=\"" + str(y[1]) + "\"];\n")
+            file_out.write(str(x) + " -> " + str(y[0]) + "  [label=\"" + str(y[1]) + "\"];\n")
+
+    for x in graphLabel:
+        file_out.write(str(x) + " [ label = \" "+graphLabel[x]+" \" ] \n")
     file_out.write("}")
     file_out.close()
 
@@ -350,22 +353,31 @@ def printResult(graph,graphLabel,i):
 #-- Main function --#
 def frequentSubG(graph,graphLabel,thr):  #graph=input graph thr=threshold
     fEdges=countFrequentEdges(graph,graphLabel,thr)
+    print(fEdges)
+    print(len(fEdges))
     candidateSet=subGraphExtension(list(fEdges.keys()))
+    print("Lenghezza prima di CSP",len(candidateSet))
     #foreach element implement the CSP and calculate its frequent -> if it is noto
-    candidateSetApp=copy.copy(candidateSet)
+    candidateSetApp=copy.deepcopy(candidateSet)
+    i=0
+
+    for x in candidateSet:
+        printResult(x[0],x[1],i)
+        i+=1
 
     #sarebbe da implementare strutture condivise per i domini
     #oppure calcolarli una volta sola prima
     #domini struttura come 'label':set di nodi
-    domains=getDomains(graphLabel)
-    for el in candidateSetApp:
-        if(isFrequent(el,graph,domains)<thr):
-            candidateSet.remove(el)
-    print(candidateSet)
-    i=0
-    for x in candidateSet:
-        printResult(el[0],el[1],i)
-        i+=1
+    #domains=getDomains(graphLabel)
+    #for el in candidateSetApp:
+    #    if(isFrequent(el,graph,domains)<thr):
+    #        candidateSet.remove(el)
+    #print("AAA",len(candidateSet))
+    #for z in candidateSet:
+    #    printResult(z[0],z[1],i)
+    #    i+=1
+
+
 
 #frequentEdges between label --> we are working with directed graph so the order matter
 def countFrequentEdges(graph,graphLabel,thr):
@@ -393,11 +405,11 @@ def subGraphExtension(fEdges):
 def subExtSimple(fEdgesSet):
     result = []
     dfscode=set()
-    m=0
     for i in range(len(fEdgesSet)):
         j=i+1
         while(j<len(fEdgesSet)):
-            print("Fine ciclone")
+            #print("Fine ciclone")
+            m=0
             print("Confonto tra ",fEdgesSet[i],fEdgesSet[j])
             #print (i)
             #print (j)
@@ -406,151 +418,155 @@ def subExtSimple(fEdgesSet):
             temp2 = {}
             temp3 = {}
             temp4 = {}
-
-            if (fEdgesSet[i][0] == fEdgesSet[i][1] == fEdgesSet[j][0]== fEdgesSet[j][1]):
-                 m+=1
-                 graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[i][1])}
-                 graph1={'v0':[('v1',str(fEdgesSet[i][2]),('v2',str(fEdgesSet[j][2])))], 'v1':[], 'v2':[]}
+            if (fEdgesSet[i][0] == fEdgesSet[i][1] == fEdgesSet[j][0]== fEdgesSet[j][1])
+                m+=1
+                graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[i][1])}
+                graph1={'v0':[('v1',str(fEdgesSet[i][2]),('v2',str(fEdgesSet[j][2])))], 'v1':[], 'v2':[]}
+                R=minDFS(graph1,graphLabel1)
+                if(R not in dfscode):
+                    result.append((graph1,graphLabel1))
+                    dfscode.add(R)
+                graphLabel2={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1])}
+                graph2={'v0':[('v1',str(fEdgesSet[i][2]))], 'v1':[('v0',str(fEdgesSet[j][2]))]}
+                R=minDFS(graph2,graphLabel2)
+                if(R not in dfscode):
+                    result.append((graph2,graphLabel2))
+                    dfscode.add(R)
+                graphLabel3={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
+                graph3={'v0':[('v1',str(fEdgesSet[i][2]))],'v1':[('v2',str(fEdgesSet[j][2]))],'v2':[]}
+                R=minDFS(graph3,graphLabel3)
+                if(R not in dfscode):
+                    result.append((graph3,graphLabel3))
+                    dfscode.add(R)
+                graphLabel4={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[j][0]),'v2':str(fEdgesSet[i][1])}
+                graph4={'v0':[],'v1':[('v0',str(fEdgesSet[i][2]))],'v2':[('v0',str(fEdgesSet[j][2]))]}
+                R=minDFS(graph4,graphLabel4)
+                if(R not in dfscode):
+                    result.append((graph4,graphLabel4))
+                    dfscode.add(R)
+            if ((fEdgesSet[i][0] != fEdgesSet[i][1]) and (fEdgesSet[i][1] == fEdgesSet [j][0]) and (fEdgesSet[j][0] == fEdgesSet[j][1]) ):                 graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
+                 graph1={'v0':[('v1',str(fEdgesSet[i][2]) )], 'v1':[ ('v2', str(fEdgesSet[j][2]))], 'v2':[]}
                  R=minDFS(graph1,graphLabel1)
                  if(R not in dfscode):
-                     result.append((graph1,graphLabel1))
-                     dfscode.add(R)
-                 graphLabel2={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1])}
-                 graph2={'v0':[('v1',str(fEdgesSet[i][2]))], 'v1':[('v0',str(fEdgesSet[j][2]))]}
+                      result.append((graph1,graphLabel1))
+                      dfscode.add(R)
+                 graphLabel2={'v0':str(fEdgesSet[j][1]),'v1':str(fEdgesSet[i][0]),'v2':str(fEdgesSet[j][0])}
+                 graph2={'v0':[], 'v1':[('v0',str(fEdgesSet[i][2]))], 'v2':['v0', str(fEdgesSet[j][2])]}
                  R=minDFS(graph2,graphLabel2)
                  if(R not in dfscode):
-                     result.append((graph2,graphLabel2))
-                     dfscode.add(R)
-                 graphLabel3={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
-                 graph3={'v0':[('v1',str(fEdgesSet[i][2]))],'v1':[('v2',str(fEdgesSet[j][2]))],'v2':[]}
-                 R=minDFS(graph3,graphLabel3)
-                 if(R not in dfscode):
-                     result.append((graph3,graphLabel3))
-                     dfscode.add(R)
-                 graphLabel4={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[j][0]),'v2':str(fEdgesSet[i][1])}
-                 graph4={'v0':[],'v1':[('v0',str(fEdgesSet[i][2]))],'v2':[('v0',str(fEdgesSet[j][2]))]}
-                 R=minDFS(graph4,graphLabel4)
-                 if(R not in dfscode):
-                     result.append((graph4,graphLabel4))
-                     dfscode.add(R)
+                       result.append((graph2,graphLabel2))
+                       dfscode.add(R)
 
-            if ((fEdgesSet[i][0] == fEdgesSet[j][0]) and (fEdgesSet[i][1] != fEdgesSet[j][1])):
-                 m+=1
-                 graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]), 'v2':str(fEdgesSet[j][1])}
-                 graph1={'v0':[('v1',str(fEdgesSet[i][2])),('v2',str(fEdgesSet[j][2]))], 'v1':[], 'v2':[]}
+            if ((fEdgesSet[i][0] != fEdgesSet[i][1]) and (fEdgesSet[i][0] == fEdgesSet [j][0]) and (fEdgesSet[j][0] == fEdgesSet[j][1]) ):                 graphLabel1={'v0':str(fEdgesSet[j][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
+                 graph1={'v0':[('v1',str(fEdgesSet[i][2])), ('v2', str(fEdgesSet[j][2])) ], 'v1':[], 'v2':[]}
                  R=minDFS(graph1,graphLabel1)
                  if(R not in dfscode):
-                     result.append((graph1,graphLabel1))
-                     dfscode.add(R)
-
-            if ((fEdgesSet[i][0] == fEdgesSet[j][0]) and (fEdgesSet[i][1] == fEdgesSet[j][1])):
-                 m+=1
-                 graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
-                 graph1={'v0':[('v1',str(fEdgesSet[i][2])), ('v2',str(fEdgesSet[j][2]))], 'v1':[] , 'v2':[]}
-                 print(graph1,graphLabel1)
-                 R=minDFS(graph1,graphLabel1)
-                 if(R not in dfscode):
-                     result.append((graph1,graphLabel1))
-                     dfscode.add(R)
-                 graphLabel2={'v0':str(fEdgesSet[i][1]),'v1':str(fEdgesSet[i][0]),'v2':str(fEdgesSet[j][0])}
-                 graph2={'v1':[('v0',str(fEdgesSet[i][2]))],'v2':[('v0',str(fEdgesSet[i][2]))], 'v0':[]}
+                    result.append((graph1,graphLabel1))
+                    dfscode.add(R)
+                 graphLabel2={'v0':str(fEdgesSet[j][0]),'v1':str(fEdgesSet[j][1]),'v2':str(fEdgesSet[i][1])}
+                 graph2={'v0':[('v1',str(fEdgesSet[j][2]))], 'v1':[('v2',str(fEdgesSet[i][2]))], 'v2':[]}
                  R=minDFS(graph2,graphLabel2)
                  if(R not in dfscode):
-                     result.append((graph2,graphLabel2))
-                     dfscode.add(R)
-
-            if ( (fEdgesSet[i][0] == fEdgesSet[j][0]) and (fEdgesSet[i][0] == fEdgesSet[j][1]) ):
-                 m+=1
-                 graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
-                 graph1={'v0':[('v1',str(fEdgesSet[i][2])),('v2',str(fEdgesSet[j][2]))], 'v1':[], 'v2':[] }
+                    result.append((graph2,graphLabel2))
+                    dfscode.add(R)
+            if ( (fEdgesSet[i][0] == fEdgesSet[i][1]) and (fEdgesSet[i][1] == fEdgesSet [j][1]) and (fEdgesSet[j][0] != fEdgesSet[j][1]) ):                 graphLabel1={'v0':str(fEdgesSet[i][1]),'v1':str(fEdgesSet[i][0]),'v2':str(fEdgesSet[j][0])}
+                 graph1={'v0':[], 'v1':[('v0',str(fEdgesSet[i][2])) ], 'v2':[('v0',str(fEdgesSet[j][2])) ]}
                  R=minDFS(graph1,graphLabel1)
                  if(R not in dfscode):
                      result.append((graph1,graphLabel1))
                      dfscode.add(R)
                  graphLabel2={'v0':str(fEdgesSet[j][0]),'v1':str(fEdgesSet[j][1]),'v2':str(fEdgesSet[i][1])}
-                 graph2={'v0':[('v1',str(fEdgesSet[j][2]))],'v1':[('v2',str(fEdgesSet[i][2]))],'v2':[]}
+                 graph2={'v0':[('v1',str(fEdgesSet[j][2]))], 'v1':[('v2',str(fEdgesSet[i][2]))], 'v2':[]}
                  R=minDFS(graph2,graphLabel2)
                  if(R not in dfscode):
                      result.append((graph2,graphLabel2))
                      dfscode.add(R)
 
-            if ( (fEdgesSet[i][0] == fEdgesSet[j][0]) and (fEdgesSet[i][1] == fEdgesSet[j][0])):
-                 m+=1
-                 graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
-                 graph1={'v0':[('v1',str(fEdgesSet[i][2])),('v2',str(fEdgesSet[j][2]))], 'v1':[], 'v2':[] }
+            if ((fEdgesSet[i][0] == fEdgesSet[i][1]) and (fEdgesSet[i][1] == fEdgesSet [j][0]) and (fEdgesSet[j][0] != fEdgesSet[j][1]) ):                 graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
+                 graph1={'v0':[('v1', str(fEdgesSet[i][2]))], 'v1':[('v2',str(fEdgesSet[j][2])) ], 'v2':[] }
                  R=minDFS(graph1,graphLabel1)
                  if(R not in dfscode):
-                     result.append((graph1,graphLabel1))
-                     dfscode.add(R)
+                    result.append((graph1,graphLabel1))
+                    dfscode.add(R)
                  graphLabel2={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
-                 graph2={'v0':[('v1',str(fEdgesSet[i][2]))],'v1':[('v2',str(fEdgesSet[j][2]))],'v2':[]}
+                 graph2={'v0':[('v1',str(fEdgesSet[i][2])), ('v2', str(fEdgesSet[j][2]))], 'v1':[], 'v2':[]}
                  R=minDFS(graph2,graphLabel2)
                  if(R not in dfscode):
-                     result.append((graph2,graphLabel2))
-                     dfscode.add(R)
+                    result.append((graph2,graphLabel2))
+                    dfscode.add(R)
 
-            if ( (fEdgesSet[i][0] == fEdgesSet[j][1]) and (fEdgesSet[i][1] != fEdgesSet[j][0]) ):
-                 m+=1
-                 graphLabel1={'v0':str(fEdgesSet[j][0]),'v1':str(fEdgesSet[i][0]),'v2':str(fEdgesSet[i][1])}
-                 graph1={'v0':[('v1',str(fEdgesSet[j][2]))], 'v1':[('v2',str(fEdgesSet[i][2]))], 'v2':[] }
+            if ((fEdgesSet[i][0] == fEdgesSet[j][0]) and (fEdgesSet[i][1] == fEdgesSet [j][1]) ):                 graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
+                 graph1={'v0':[('v1', str(fEdgesSet[i][2])), ('v2', str(fEdgesSet[j][2]))], 'v1':[], 'v2':[]}
                  R=minDFS(graph1,graphLabel1)
                  if(R not in dfscode):
-                     result.append((graph1,graphLabel1))
-                     dfscode.add(R)
-            '''
-            Caso aggiunto da me
-            '''
-            if((fEdgesSet[i][0]==fEdgesSet[i][1]) and (fEdgesSet[j][0]!=fEdgesSet[i][0]) and (fEdgesSet[j][1]==fEdgesSet[i][0])):
-                graphLabel1={'v0':str(fEdgesSet[i][0]), 'v1':str(fEdgesSet[i][1]), 'v2':str(fEdgesSet[j][1])}
-                graph1={'v0': [('v1',str(fEdgesSet[i][2]))], 'v2':[('v1',str(fEdgesSet[j][2]))], 'v1':[]}
-                R=minDFS(graph1,graphLabel1)
-                if(R not in dfscode):
+                    result.append((graph1,graphLabel1))
+                    dfscode.add(R)
+                 graphLabel2={'v0':str(fEdgesSet[i][1]),'v1':str(fEdgesSet[i][0]),'v2':str(fEdgesSet[j][0])}
+                 graph2={'v0':[], 'v1':[('v0',str(fEdgesSet[i][2]))], 'v2':[('v0',str(fEdgesSet[j][2]))]}
+                 R=minDFS(graph2,graphLabel2)
+                 if(R not in dfscode):
+                    result.append((graph2,graphLabel2))
+                    dfscode.add(R)
+            if ((fEdgesSet[i][0] == fEdgesSet[j][1]) and (fEdgesSet[i][1] == fEdgesSet [j][0]) ):                 graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1])}
+                 graph1={'v0':[('v1', str(fEdgesSet[i][2]))], 'v1':[('v0', str(fEdgesSet[j][2]))]}
+                 R=minDFS(graph1,graphLabel1)
+                 if(R not in dfscode):
+                    result.append((graph1,graphLabel1))
+                    dfscode.add(R)
+                 graphLabel2={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
+                 graph2={'v0':[('v1', str(fEdgesSet[i][2]))], 'v1':[('v2',str(fEdgesSet[j][2]))], 'v2':[]}
+                 R=minDFS(graph2,graphLabel2)
+                 if(R not in dfscode):
+                    result.append((graph2,graphLabel2))
+                    dfscode.add(R)
+                 graphLabel3={'v0':str(fEdgesSet[j][0]),'v1':str(fEdgesSet[j][1]),'v2':str(fEdgesSet[i][1])}
+                 graph3={'v0':[('v1', str(fEdgesSet[j][2]))], 'v1':[('v2',str(fEdgesSet[i][2]))], 'v2':[]}
+                 R=minDFS(graph3,graphLabel3)
+                 if(R not in dfscode):
+                    result.append((graph3,graphLabel3))
+                    dfscode.add(R)
+
+            if ((fEdgesSet[i][0] == fEdgesSet[j][0]) and (fEdgesSet[i][1] == fEdgesSet [j][1])):                 graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]), 'v2':str(fEdgesSet[j][1])}
+                 graph1={'v0':[('v1', str(fEdgesSet[i][2])), ('v2', str(fEdgesSet[j][2]))], 'v1':[], 'v2':[]}
+                 R=minDFS(graph1,graphLabel1)
+                 if(R not in dfscode):
+                    result.append((graph1,graphLabel1))
+                    dfscode.add(R)
+                 graphLabel2={'v0':str(fEdgesSet[i][1]),'v1':str(fEdgesSet[i][0]),'v2':str(fEdgesSet[j][0])}
+                 graph2={'v0':[], 'v1':[('v0',str(fEdgesSet[i][2]))], 'v2':[('v0',str(fEdgesSet[j][2]))]}
+                 R=minDFS(graph2,graphLabel2)
+                 if(R not in dfscode):
+                    result.append((graph2,graphLabel2))
+                    dfscode.add(R)
+
+            if ((fEdgesSet[i][1] == fEdgesSet[j][1]) and (fEdgesSet[i][0] != fEdgesSet[i][1]) and (fEdgesSet[i][1] != fEdgesSet[j][0]) and (fEdgesSet[i][0] != fEdgesSet[j][0]) and (fEdgesSet[i][0] != fEdgesSet[j][1]) ):                 graphLabel1={'v0':str(fEdgesSet[i][1]),'v1':str(fEdgesSet[i][0]), 'v2':str(fEdgesSet[j][0])}
+                 graph1={'v0':[], 'v1':[('v0', str(fEdgesSet[i][2]))], 'v2':[('v0', str(fEdgesSet[j][2]))]}
+                 R=minDFS(graph1,graphLabel1)
+                 if(R not in dfscode):
                     result.append((graph1,graphLabel1))
                     dfscode.add(R)
 
-            if ( (fEdgesSet[i][0] == fEdgesSet[j][1]) and (fEdgesSet[i][1] == fEdgesSet[j][0]) ):
-                 m+=1
-                 graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
-                 graph1={'v0':[('v1',str(fEdgesSet[i][2]))], 'v1':[('v2', str(fEdgesSet[j][2]))], 'v2':[] }
+            if ((fEdgesSet[i][0] == fEdgesSet[j][1]) and (fEdgesSet[i][0] != fEdgesSet[i][1]) and (fEdgesSet[i][0] != fEdgesSet[j][0]) and (fEdgesSet[i][1] != fEdgesSet[j][0]) and (fEdgesSet[i][1] != fEdgesSet[j][1]) ):
+                 graphLabel1={'v0':str(fEdgesSet[j][0]),'v1':str(fEdgesSet[i][0]), 'v2':str(fEdgesSet[i][1])}
+                 graph1={'v0':[('v1', str(fEdgesSet[j][2]))], 'v1':[('v2', str(fEdgesSet[i][2]))], 'v2':[]}
                  R=minDFS(graph1,graphLabel1)
                  if(R not in dfscode):
-                     result.append((graph1,graphLabel1))
-                     dfscode.add(R)
-                 graphLabel2={'v0':str(fEdgesSet[j][0]),'v1':str(fEdgesSet[j][1]),'v2':str(fEdgesSet[i][0])}
-                 graph2={'v0':[('v1',str(fEdgesSet[j][2]))], 'v1':[('v2', str(fEdgesSet[i][2]))], 'v2':[] }
-                 R=minDFS(graph2,graphLabel2)
-                 if(R not in dfscode):
-                     result.append((graph2,graphLabel2))
-                     dfscode.add(R)
-                 graphLabel3={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1])}
-                 graph3={'v0':[('v1',str(fEdgesSet[i][2]))], 'v1':[('v0',str(fEdgesSet[j][2]))]}
-                 print(graph3,graphLabel3)
-                 R=minDFS(graph3,graphLabel3)
-                 if(R not in dfscode):
-                     result.append((graph3,graphLabel3))
-                     dfscode.add(R)
-            if ( (fEdgesSet[i][1] == fEdgesSet[j][1]) and (fEdgesSet[i][0] != fEdgesSet[j][1]) ):
-                 m+=1
-                 graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
-                 graph1={'v0':[('v1',str(fEdgesSet[i][2]))], 'v2':[('v1', str(fEdgesSet[j][2]))], 'v1':[] }
-                 R=minDFS(graph1,graphLabel1)
-                 if(R not in dfscode):
-                     result.append((graph1,graphLabel1))
-                     dfscode.add(R)
-            if ( (fEdgesSet[i][1] == fEdgesSet[j][0]) and (fEdgesSet[i][1] != fEdgesSet[j][1]) ):
-                 m+=1
-                 l1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
-                 graph1={'v0':[('v1',str(fEdgesSet[i][2]))], 'v1':[('v2', str(fEdgesSet[j][2]))], 'v2':[] }
-                 R=minDFS(graph1,graphLabel1)
-                 if(R not in dfscode):
-                     result.append((graph1,graphLabel1))
-                     dfscode.add(R)
-            j+=1
+                    result.append((graph1,graphLabel1))
+                    dfscode.add(R)
 
-    print("numerone di match ",m)
-    print("Printo dfscode ",dfscode)
-    print(len(dfscode))
-    print("Printo i risultati ", result)
+            if ((fEdgesSet[i][0] == fEdgesSet[j][0]) and (fEdgesSet[i][0] != fEdgesSet[i][1]) and (fEdgesSet[i][0] != fEdgesSet[j][1]) and (fEdgesSet[i][1] != fEdgesSet[j][0]) and (fEdgesSet[i][1] != fEdgesSet[j][1]) ):                 graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]), 'v2':str(fEdgesSet[j][1])}
+                 graph1={'v0':[('v1', str(fEdgesSet[i][2])), ('v2', str(fEdgesSet[j][2]))], 'v1':[], 'v2':[]}
+                 R=minDFS(graph1,graphLabel1)
+                 if(R not in dfscode):
+                    result.append((graph1,graphLabel1))
+                    dfscode.add(R)
+            j=j+1
+
+
+    #print("numerone di match ",m)
+    #print("Printo dfscode ",dfscode)
+    #print(len(dfscode))
+    #print("Printo i risultati ", result)
     print("Lunghezza result ", len(result))
     return result
 
@@ -562,7 +578,7 @@ def getDomains(graphLabel):  #mi ricavo i domini
             domains[la]=[x]
         else:
             domains[la].append(x)
-    print(domains)
+    #print(domains)
     return domains
 
 
@@ -572,28 +588,59 @@ def getDomains(graphLabel):  #mi ricavo i domini
 
 def isFrequent(el,graph,domains): #funzione fondamentale che permete di calcolare le occorrenze nel grafo, l'elemeno el (grafo+label)
     subG=el[0]
-    subGLabel=el[1]
+    subGLabel=el[1] #-> graph di label
     #node consistency verificata col dominio
     #arc  consistency da verificare
     count=[]
-    for source in subG:
-        for dest in subG[source]:
-            #source e dest represent an arch -> dest is a couple
-            count.append(countIntheGraph(subGLabel[source],subGLabel[dest[0]],dest[1],graph,domains))
+    if(len(subGLabel)!=2):#specifico per i cicli
+        for source in subG:
+            for dest in subG[source]:
+                #source e dest represent an arch -> dest is a couple
+                count.append(countIntheGraph(subGLabel[source],subGLabel[dest[0]],dest[1],graph,domains))
+    else: #caso ciclone
+        nodes=[]
+        print(subG)
+        print(subGLabel)
+        for x in subGLabel:
+            Lab1=subGLabel[x]
+            N2=subG[x][0][0]
+            break
+        Lab2=subGLabel[N2]
+        W1=subG[x][0][1]
+        W2=subG[N2][0][1]
+        count.append(countCicleIntheGraph(Lab1,Lab2,W1,W2,graph,domains))
+        #count.append(countCicleIntheGraph(subGLabel[source],subGLabel[dest[0]],dest[1],graph,domains))
     return(min(count))
+
+def countCicleIntheGraph(Lab1,Lab2,W1,W2,graph,domains): #pere la struttura dei grafi
+    la=domains[Lab1]
+    lb=domains[Lab2]
+    #W1 -> la1 to l2
+    #w2 -> la2 to la1
+    count=0
+    for x in la:
+        adj=graph[x]
+        for y in adj:
+            if(y[0] in lb and y[1]==W1 and ((x,W2) in graph[y[0]])):
+                count+=1
+                break
+    return count
+
 
 def countIntheGraph(source,dest,weigth,graph,domains):
     count=0
-    print(source)
-    print(dest)
+    #print(source)
+    #print(dest)
     la=domains[source]
     lb=domains[dest]
     for x in la:
-        temp=graph[x]
-        for y in temp:
-            if(y[0] in lb and y[1]==weigth):
+        temp=graph[x] #lista di adiacenza del nodo sorgente
+        #print("Esco dal ciclione")
+        for y in temp: #se nella lista di adiacenza c'è un nodo che ha la label di destinazione con lo stesso peso, conto
+            if(y[0] in lb and y[1]==weigth and y[0]!=x): #non contando gli overlap forse non c'è necessità di contare esclusivamente
+                #print("Matchone")
                 count+=1
-                break #faccio il break e basta
+                #break #faccio il break e basta
     return count
 
 
