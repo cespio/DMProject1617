@@ -357,20 +357,21 @@ def frequentSubG(graph,graphLabel,thr):  #graph=input graph thr=threshold
     print(len(fEdges))
     candidateSet=subGraphExtension(list(fEdges.keys()))
     print("Lenghezza prima di CSP",len(candidateSet))
-    #foreach element implement the CSP and calculate its frequent -> if it is noto
     candidateSetApp=copy.deepcopy(candidateSet)
     #sarebbe da implementare strutture condivise per i domini
     #oppure calcolarli una volta sola prima
     #domini struttura come 'label':set di nodi
+    tolti=0
     domains=getDomains(graphLabel)
     for el in candidateSetApp:
         if(isFrequent(el,graph,domains)<thr):
+            tolti+=1
             candidateSet.remove(el)
-    print("AAA",len(candidateSet))
+    print("Lunghezza dopo CSP",len(candidateSet),"tolti ",tolti)
     i=0
     for z in candidateSet:
-        printResult(z[0],z[1],i)
-    i+=1
+        printResult(z[0],z[1],str(i))
+        i+=1
 
 
 
@@ -416,7 +417,7 @@ def subExtSimple(fEdgesSet):
             if (fEdgesSet[i][0] == fEdgesSet[i][1] == fEdgesSet[j][0]== fEdgesSet[j][1]):
                 m+=1
                 graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[i][1])}
-                graph1={'v0':[('v1',str(fEdgesSet[i][2]),('v2',str(fEdgesSet[j][2])))], 'v1':[], 'v2':[]}
+                graph1={'v0':[('v1',str(fEdgesSet[i][2])),('v2',str(fEdgesSet[j][2]))], 'v1':[], 'v2':[]}
                 R=minDFS(graph1,graphLabel1)
                 if(R not in dfscode):
                     result.append((graph1,graphLabel1))
@@ -440,7 +441,6 @@ def subExtSimple(fEdgesSet):
                     result.append((graph4,graphLabel4))
                     dfscode.add(R)
             if ((fEdgesSet[i][0] != fEdgesSet[i][1]) and (fEdgesSet[i][1] == fEdgesSet [j][0]) and (fEdgesSet[j][0] == fEdgesSet[j][1]) ):
-                 print("X")
                  graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
                  graph1={'v0':[('v1',str(fEdgesSet[i][2]) )], 'v1':[ ('v2', str(fEdgesSet[j][2]))], 'v2':[]}
                  R=minDFS(graph1,graphLabel1)
@@ -455,7 +455,6 @@ def subExtSimple(fEdgesSet):
                        dfscode.add(R)
 
             if ((fEdgesSet[i][0] != fEdgesSet[i][1]) and (fEdgesSet[i][0] == fEdgesSet [j][0]) and (fEdgesSet[j][0] == fEdgesSet[j][1]) ):
-                 print("Z")
                  graphLabel1={'v0':str(fEdgesSet[j][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
                  graph1={'v0':[('v1',str(fEdgesSet[i][2])), ('v2', str(fEdgesSet[j][2])) ], 'v1':[], 'v2':[]}
                  R=minDFS(graph1,graphLabel1)
@@ -469,7 +468,6 @@ def subExtSimple(fEdgesSet):
                     result.append((graph2,graphLabel2))
                     dfscode.add(R)
             if ( (fEdgesSet[i][0] == fEdgesSet[i][1]) and (fEdgesSet[i][1] == fEdgesSet [j][1]) and (fEdgesSet[j][0] != fEdgesSet[j][1]) ):
-                 print("W")
                  graphLabel1={'v0':str(fEdgesSet[i][1]),'v1':str(fEdgesSet[i][0]),'v2':str(fEdgesSet[j][0])}
                  graph1={'v0':[], 'v1':[('v0',str(fEdgesSet[i][2])) ], 'v2':[('v0',str(fEdgesSet[j][2])) ]}
                  R=minDFS(graph1,graphLabel1)
@@ -484,7 +482,6 @@ def subExtSimple(fEdgesSet):
                      dfscode.add(R)
 
             if ((fEdgesSet[i][0] == fEdgesSet[i][1]) and (fEdgesSet[i][1] == fEdgesSet [j][0]) and (fEdgesSet[j][0] != fEdgesSet[j][1]) ):
-                 print("A")
                  graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
                  graph1={'v0':[('v1', str(fEdgesSet[i][2]))], 'v1':[('v2',str(fEdgesSet[j][2])) ], 'v2':[] }
                  R=minDFS(graph1,graphLabel1)
@@ -499,7 +496,6 @@ def subExtSimple(fEdgesSet):
                     dfscode.add(R)
 
             if ((fEdgesSet[i][0] == fEdgesSet[j][0]) and (fEdgesSet[i][1] == fEdgesSet [j][1]) ):
-                 print("B")
                  graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]),'v2':str(fEdgesSet[j][1])}
                  graph1={'v0':[('v1', str(fEdgesSet[i][2])), ('v2', str(fEdgesSet[j][2]))], 'v1':[], 'v2':[]}
                  R=minDFS(graph1,graphLabel1)
@@ -513,7 +509,6 @@ def subExtSimple(fEdgesSet):
                     result.append((graph2,graphLabel2))
                     dfscode.add(R)
             if ((fEdgesSet[i][0] == fEdgesSet[j][1]) and (fEdgesSet[i][1] == fEdgesSet [j][0]) ):
-                 print("C")
                  graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1])}
                  graph1={'v0':[('v1', str(fEdgesSet[i][2]))], 'v1':[('v0', str(fEdgesSet[j][2]))]}
                  R=minDFS(graph1,graphLabel1)
@@ -534,7 +529,6 @@ def subExtSimple(fEdgesSet):
                     dfscode.add(R)
 
             if ((fEdgesSet[i][0] == fEdgesSet[j][0]) and (fEdgesSet[i][1] == fEdgesSet [j][1])):
-                 print("D")
                  graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]), 'v2':str(fEdgesSet[j][1])}
                  graph1={'v0':[('v1', str(fEdgesSet[i][2])), ('v2', str(fEdgesSet[j][2]))], 'v1':[], 'v2':[]}
                  R=minDFS(graph1,graphLabel1)
@@ -549,7 +543,6 @@ def subExtSimple(fEdgesSet):
                     dfscode.add(R)
 
             if ((fEdgesSet[i][1] == fEdgesSet[j][1]) and (fEdgesSet[i][0] != fEdgesSet[i][1]) and (fEdgesSet[i][1] != fEdgesSet[j][0]) and (fEdgesSet[i][0] != fEdgesSet[j][0]) and (fEdgesSet[i][0] != fEdgesSet[j][1]) ):
-                 print("E")
                  graphLabel1={'v0':str(fEdgesSet[i][1]),'v1':str(fEdgesSet[i][0]), 'v2':str(fEdgesSet[j][0])}
                  graph1={'v0':[], 'v1':[('v0', str(fEdgesSet[i][2]))], 'v2':[('v0', str(fEdgesSet[j][2]))]}
                  R=minDFS(graph1,graphLabel1)
@@ -558,7 +551,6 @@ def subExtSimple(fEdgesSet):
                     dfscode.add(R)
 
             if ((fEdgesSet[i][0] == fEdgesSet[j][1]) and (fEdgesSet[i][0] != fEdgesSet[i][1]) and (fEdgesSet[i][0] != fEdgesSet[j][0]) and (fEdgesSet[i][1] != fEdgesSet[j][0]) and (fEdgesSet[i][1] != fEdgesSet[j][1]) ):
-                 print("F")
                  graphLabel1={'v0':str(fEdgesSet[j][0]),'v1':str(fEdgesSet[i][0]), 'v2':str(fEdgesSet[i][1])}
                  graph1={'v0':[('v1', str(fEdgesSet[j][2]))], 'v1':[('v2', str(fEdgesSet[i][2]))], 'v2':[]}
                  R=minDFS(graph1,graphLabel1)
@@ -567,7 +559,6 @@ def subExtSimple(fEdgesSet):
                     dfscode.add(R)
 
             if ((fEdgesSet[i][0] == fEdgesSet[j][0]) and (fEdgesSet[i][0] != fEdgesSet[i][1]) and (fEdgesSet[i][0] != fEdgesSet[j][1]) and (fEdgesSet[i][1] != fEdgesSet[j][0]) and (fEdgesSet[i][1] != fEdgesSet[j][1]) ):
-                 print("G")
                  graphLabel1={'v0':str(fEdgesSet[i][0]),'v1':str(fEdgesSet[i][1]), 'v2':str(fEdgesSet[j][1])}
                  graph1={'v0':[('v1', str(fEdgesSet[i][2])), ('v2', str(fEdgesSet[j][2]))], 'v1':[], 'v2':[]}
                  R=minDFS(graph1,graphLabel1)
@@ -595,11 +586,6 @@ def getDomains(graphLabel):  #mi ricavo i domini
     #print(domains)
     return domains
 
-
-
-
-
-
 def isFrequent(el,graph,domains): #funzione fondamentale che permete di calcolare le occorrenze nel grafo, l'elemeno el (grafo+label)
     subG=el[0]
     subGLabel=el[1] #-> graph di label
@@ -607,47 +593,43 @@ def isFrequent(el,graph,domains): #funzione fondamentale che permete di calcolar
     #arc  consistency da verificare
     count=[]
     if(len(subGLabel)!=2):#specifico per i cicli
-        print("adesso contiamo per ",subG,subGLabel)
-        ''''
-        powerList=[]
-        for x in subGLabel:
-            powerList.append(domains[subGLabel[x]])
-        combination=list(itertools.product(*powerList))
-        combination=[x for x in combination if(len(x)==len(set(x)))]
-        for y in combination:
-            checkAssignmentGraph(y,subG,subGLabel,list(subGLabel.keys()),domains,graph)
-        '''
+        #print("adesso contiamo per ",subG,subGLabel)
         listT=[]
         dictAss={}
         for k in subGLabel:
             dictAss[k]=set()
-        for x in subG:
+        for x in sorted(subG):
             print("Uso nodo ",x, "Con label ",subGLabel[x])
-            if(len(dictAss[x])==0):
-                print("Yes")
-                la=domains[subGLabel[x]]
-            else:
-                print("No")
-                la=dictAss[x]
-            print("La sua la è ",la)
-            for y in subG[x]:
-                print("Da ",x, " andiamo verso ",y," con label ",subGLabel[y[0]])
-                if(len(dictAss[y[0]])==0):
+            if(len(subG[x])!=0):
+                if(len(dictAss[x])==0):
                     print("Yes")
-                    lb=domains[subGLabel[y[0]]]
+                    la=domains[subGLabel[x]]
                 else:
                     print("No")
+                    la=dictAss[x]
+            else:
+                la=[]
+            #print("La sua la è ",la)
+            for y in sorted(subG[x]):
+                if(len(dictAss[x])!=0):
+                    la=dictAss[x]
+                print("Da ",x, " andiamo verso ",y," con label ",subGLabel[y[0]])
+                if(len(dictAss[y[0]])==0):
+                    #print("Yes")
+                    lb=domains[subGLabel[y[0]]]
+                else:
+                    #print("No")
                     lb=dictAss[y[0]]#
                 #temp=list(zip(la,lb))
                 temp=list(itertools.product(la,lb))
-                print("Temp ",temp)
+                #print("Temp ",temp)
                 temp1=[]
                 for z in temp:
                     if(z[0]!=z[1]):
                         temp1.append([z[0],z[1],y[1]])
-                print("Temp1 ",temp1)
-                dictAss=checkEdges(temp1,dictAss,graph,x,y[0])
-        print("DICTASS   ",dictAss)
+                #print("Temp1 ",temp1)
+                checkEdges(temp1,dictAss,graph,x,y[0])
+                print("DICTASS   ",dictAss)
 
         '''
         for source in subG:
@@ -659,16 +641,22 @@ def isFrequent(el,graph,domains): #funzione fondamentale che permete di calcolar
                     lS=subGLabel(source)
                     lD=subGLabel(dest)
         '''
+        '''
         for z in dictAss:
             count.append(dictAss[z])
         combination=list(itertools.product(*count))
         combination=[x for x in combination if(len(x)==len(set(x)))]
+        # print ("AT the endddddddddd ",combination, "number of combination ",len(combination))
         return len(combination)
+        '''
+        CF=countFinal(dictAss,subG,subGLabel,graph)
+        print("CFFF ",CF)
+        return CF
     else: #caso ciclone
         nodes=[]
         print(subG)
         print(subGLabel)
-        for x in subGLabel:
+        for x in sorted(subGLabel):
             Lab1=subGLabel[x]
             N2=subG[x][0][0]
             break
@@ -682,25 +670,55 @@ def isFrequent(el,graph,domains): #funzione fondamentale che permete di calcolar
 
 #restringo il dominio
 #si potrebbe aggiungere un controllo in più
+
+
+def countFinal(dictAss,subG,subGLabel,graph):
+    count=[]
+    print(subG)
+    print(subGLabel)
+    print(dictAss)
+    for a in sorted(subG):
+        for b in sorted(subG[a]):
+            temp=0
+            la=dictAss[a]
+            lb=dictAss[b[0]]
+            mix=list(itertools.product(la,lb))
+            for elm in mix:
+                if(elm[0]!=elm[1]):
+                    if((elm[1],b[1]) in graph[elm[0]]):
+                        temp+=1
+            count.append(temp)
+    return max(count)
+
+
+
+
 def checkEdges(listEdges,dictAss,graph,x,y):
-    match=[]
-    for elm in listEdges:
+    matchX=[]
+    matchY=[]
+    for elm in sorted(listEdges):
         tempListA=graph[elm[0]]
-        print("UAGLION tempListA ",tempListA)
+        #print("UAGLION tempListA ",tempListA)
+        print("controllo ",elm)
         if((elm[1],elm[2]) in tempListA): #così perdo riferimento al peso
             flag=1
-            print("NGULOO")
+            print("c'è")
             dictAss[x].add(elm[0])
             dictAss[y].add(elm[1])
-            match.append(elm[0])
-    universeMatch=[k[0] for k in elm]
-    noMatch=list(set(universeMatch)-set(match))
-    print("NoMATCHHHHHElm ",noMatch," con x ",x)
-    print("Dopo checkEdges ",dictAss)
-    for p in noMatch:
+            matchX.append(elm[0])
+            matchY.append(elm[1])
+    universeMatchX=[k[0] for k in listEdges]
+    universeMatchY=[k[1] for k in listEdges]
+    noMatchX=list(set(universeMatchX)-set(matchX))
+    noMatchY=list(set(universeMatchY)-set(matchY))
+    #("NoMATCHHHHHElm ",noMatch," con x ",x)
+    #print("Dopo checkEdges ",dictAss)
+    for p in noMatchX:
         if(p in dictAss[x]):
             dictAss[x].remove(p)
-    return dictAss
+    for p in noMatchY:
+        if(p in dictAss[y]):
+            dictAss[y].remove(p)
 
 def countCicleIntheGraph(Lab1,Lab2,W1,W2,graph,domains): #pere la struttura dei grafi
     la=domains[Lab1]
