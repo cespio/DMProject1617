@@ -1,9 +1,13 @@
 INTRODUCTION
 ------------
 Authours:
-*Alessandro Rizzuto 187156
-*Francesco Contaldo 190626
+
+Alessandro Rizzuto
+
+Francesco Contaldo 
+
 Project:
+
 Data Mining Project "Frequent Pattern Mining on a single Graph"
 
 INSTRUCTIONS
