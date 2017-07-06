@@ -1,10 +1,9 @@
 #Data Mining project years 2016/17
 #authors: Alessandro Rizzuto - Francesco Contaldo
 #project goal: Finding Frequent subrgraphs in an oriented labelled graph
-
+from __future__ import division
 import re
 import copy
-#import numpy
 import itertools
 from itertools import permutations
 from itertools import chain
@@ -16,22 +15,20 @@ def minDFS(graph,graphLabel):
     visits=allvisitDFS(graph,graphLabel) #calculate first all the DFSCodes related to the different DFS visits
     sortedIn=[]
     risf=[]
-    for x in visits:                                    #then each visits is sorted using the edge order
-        sortedIn.append(sortDFSVisit(x,confrontEdges))
-    result=minDFSVisit(sortedIn,lexicoConfront)      #then we select the minium DFScode using a lexicgraphical comparison
+    result=sortDFSVisit(visits[0],simpleCMP)
     dfscode=""
     for k in result:
         for y in k:
             if(isinstance(y,int)):
                 dfscode=dfscode+str(y)
             else:
-                dfscode+=y
+                dfscode=dfscode+y
     return dfscode
 
 #allvisitDFS takes as input a graph and its labels and then calculate all possible DFS visits using some nodes as root
 #it returns a list of DFSCodes
 def allvisitDFS(graph,graphLabel):
-    return_temp=makeItUndir(graph)  #to have a connected graph we first build an undirected input graph version
+    return_temp=makeItUndir(graph,graphLabel)  #to have a connected graph we first build an undirected input graph version
     undGraph=return_temp[0]
     stragglers=return_temp[1]       #the stragglers are the set of edges that we lost building the undirected versions, e.g.: loops of two nodes
     visits=[]
@@ -48,6 +45,11 @@ def allvisitDFS(graph,graphLabel):
 
     return visits
 
+def simpleCMP(a,b):
+    if(a[0]<b[0] or (a[0]==b[0] and a[1]<b[1])):
+        return True
+    else:
+        return False
 
 #function that implements all possible DFS visits starting from a given root
 #then all the different calculated DFSCodes are stored in order to be sorted and to find the minimum
@@ -62,8 +64,6 @@ def DFS_visit(undGraph,graph,graphLabel,candidate,stragglers):
         discoveryperm=copy.deepcopy(discovery)
         visitperm=copy.deepcopy(visit)
         stragglersperm=copy.deepcopy(stragglers)
-        #perm=[list(z) for z in list(permutations(undGraph[x]))] #different permutations of the adjency list in order to have all the possible DFS visits
-        #all possible sorted adjency lists
         perm=sortADJ(undGraph[x],graphLabel,undGraph,x)
         for p in perm:
             adjList=p
@@ -186,14 +186,25 @@ def mergeADJ(adjList,left,center,right,graphLabel,graph,source):
         adjList[k]=app[k-left]
         k+=1
 
-
+def getKey(item):
+    return item[2]
 #function that is capable to transform a directed graph into an undirected one, saving at the same the 2 nodes loop edges
-def makeItUndir(graph):
+def makeItUndir(graph,graphLabel):
     undGraph={}
     couple=[]
     stragglers=[]
-    for source in sorted(graph):
-        for dest in sorted(graph[source]):
+    graphLabelR={}
+    for el in graphLabel:
+        graphLabelR[graphLabel[el]]=el
+    for sourceIn in sorted(graphLabelR):
+        source=graphLabelR[sourceIn]
+        listA=graph[graphLabelR[sourceIn]]
+        listB=[]
+        for ap in listA:
+            listB.append((ap[0],ap[1],graphLabel[ap[0]]))
+        listB=sorted(listB,key=getKey)
+        listB=[(el[0],el[1]) for el in listB]
+        for dest in listB:
             if((source,dest[0]) not in couple and (dest[0],source) not in couple):
                 if(source not in undGraph):
                     undGraph[source]=[dest]
@@ -217,9 +228,13 @@ def makeItUndir(graph):
 #take the minimum of all DFScodes expolitng lexicoConfront
 def minDFSVisit(sortedIn,lexicoConfront):
     mini=sortedIn[0]
+
+    i=0
     for visit in sortedIn:
+        i+=1
         if(lexicoConfront(visit,mini)):
             mini=visit
+
     return mini
 
 #merge sort for the DFSCodes, input list of DFSCodes with compareFunction=confrontEdges
@@ -260,18 +275,23 @@ def merge(visit,left,center,right,compareFunction):
 #function that takes in input two edges and compute the comparison among them
 def confrontEdges(a,b):
     if(a[0]<a[1] and b[0]<b[1] and a[1]<b[1]): #forwardedges
+        #print a[0],a[1]," ## ",b[0],b[1],"TRUE"
         return True
     if(a[0]>a[1] and b[0]>b[1]): #backedges
         if(a[0]<b[0] or (a[0]==b[0] and a[1]<b[1])):
+            #print a[0],a[1]," ## ",b[0],b[1],"TRUE"
             return True
     else:
         if(a[0]>a[1] and b[0]<b[1]): #A backedges and B forwardedges
             if(a[0]<b[1]):
+                #print a[0],a[1]," ## ",b[0],b[1],"TRUE"
                 return True
         else:
             if(a[0]<a[1] and b[0]>b[1]):#A forwardedges and B backedges
                 if(a[1]<=b[0]):
+                    #print a[0],a[1]," ## ",b[0],b[1],"TRUE"
                     return True
+    #print a[0],a[1]," ## ",b[0],b[1],"FALSE"
     return False
 
 def lexicoConfront(a,b): #where a and b result to be two lists of tuples to compare -> the result will return or True or False
@@ -321,11 +341,8 @@ def lexicoConfront(a,b): #where a and b result to be two lists of tuples to comp
         else:
             return False
 
-'''
-Jaro Similarity
-'''
-#Jaro similarity between string
 
+#Jaro similarity between string
 def jaroSimilarity(string1,string2):
     lenS = len(string1)
     lenT = len(string2)

@@ -12,7 +12,7 @@ from random import uniform
 
 
 
-def isFrequent(el,graph,domains,solutionSet):
+def isFrequent(el,graph,domains,solutionSet,dfs):
     subG=el[0]
     subGLabel=el[1]
     count=[]
@@ -40,10 +40,10 @@ def isFrequent(el,graph,domains,solutionSet):
                 if(z[0]!=z[1]):
                     temp1.append([z[0],z[1],y[1]])
             checkEdges(temp1,dictAss,graph,x,y[0]) # -> calculates the restricted domans
-    CF=countFinal(dictAss,subG,subGLabel,graph,solutionSet)
+    CF=countFinal(dictAss,subG,subGLabel,graph,solutionSet,dfs)
     return CF
 
-def countFinal(dictAss,subG,subGLabel,graph,solutionSet):
+def countFinal(dictAss,subG,subGLabel,graph,solutionSet,dfs):
     count=[]
     temp=[]
     for k in sorted(dictAss):
@@ -72,7 +72,7 @@ def countFinal(dictAss,subG,subGLabel,graph,solutionSet):
         solutionSet.append(copy.deepcopy(sorted(sol)))
     else:
         quanti=-1
-    return quanti
+    return len(sol)
 
 #function used to construct the restricted domains
 def checkEdges(listEdges,dictAss,graph,x,y):

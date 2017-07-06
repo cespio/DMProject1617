@@ -26,19 +26,21 @@ def frequentSubG(graph,graphLabel,thr,size):
     domains=GraphPmod.getDomains(graphLabel)
     solutionSet=[] #list used to avoid the presence of already existing assignments
     for el in candidateSetApp:
-        if(CSP.isFrequent((el[0],el[1]),graph,domains,solutionSet)<thr):
+        if(CSP.isFrequent((el[0],el[1]),graph,domains,solutionSet,el[3])<thr):
             candidateSet.remove(el)
     iterations=2 #number of iterations -> at least solutions with size 2
     candidateSetPrevious=candidateSet
     while(len(candidateSet)!=0 and iterations<size):
         candidateSetPrevious=candidateSet
-        candidateSetNew=GraphPmod.subExtComplex(candidateSet,list(fEdges.keys())) #genration of bigger candidates -> adding all possible frequent edges
+        candidateSetNew=GraphPmod.nuovaGenerazione(candidateSet,list(fEdges.keys())) #genration of bigger candidates -> adding all possible frequent edges
         candidateSetNewApp=copy.deepcopy(candidateSetNew)
         solutionSet=[]
         for el in candidateSetNewApp:
-            if(CSP.isFrequent((el[0],el[1]),graph,domains,solutionSet)<thr): #counting the occurrences of the candidate subgraph
+            r=CSP.isFrequent((el[0],el[1]),graph,domains,solutionSet,el[3])
+            if(r<thr): #counting the occurrences of the candidate subgraph
                 candidateSetNew.remove(el) #if the candidate does not respect the threshold is discarded
         candidateSet=candidateSetNew
+
         if(len(candidateSetNew)!=0):
             candidateSetPrevious=candidateSetNew
         iterations+=1
@@ -47,26 +49,31 @@ def frequentSubG(graph,graphLabel,thr,size):
         for t in candidateSetPrevious:
             GraphPmod.printResult(t[0],t[1],p)
             p+=1
-        print("Number of total solution -> ",len(candidateSetPrevious))
-        print("Number of merged solution -> ",p)
-        print("Number of relation -> ",iterations)
+        print("Number of total solutions -> ",len(candidateSetPrevious))
+        print("Number of merged solutions -> ",len(candidateSetPrevious))
+        print("Number of relations -> ",iterations)
     else:
-        #merging the solutions
         mergedResult=[]
         whoIsMerged=set()
         candidateC=copy.deepcopy(candidateSetPrevious)
         #comparing all the pairs of frequent subgraph
+        candidateSetPrevious=sorted(candidateSetPrevious, key=lambda k: k[3])
         for k in range(len(candidateSetPrevious)):
+
             dfs1 = candidateSetPrevious[k][3]
             flagMerged=0
-            if(k not in whoIsMerged):
+            if(dfs1 not in whoIsMerged):
+                #whoIsMerged.add(k)
+                whoIsMerged.add(dfs1)
                 for i in range(k+1, len(candidateSetPrevious)):
                     dfs2 = candidateSetPrevious[i][3]
-                    if (dfs1 != dfs2 and i not in whoIsMerged):
+                    if (dfs2 not in whoIsMerged):
                         JarJar = DFSmod.jaroSimilarity(dfs1, dfs2)
                         if ((iterations == 3 and JarJar >= 0.9) or (iterations>3 and JarJar >= 0.8)): #if the Jaro Similarity is respected the two result are merged
                             #once one graph is merged into another it is discarded and no more considered
-                            whoIsMerged.add(i)
+                            #print "MERGED ",dfs1,dfs2,JarJar
+                            #print dfs1,dfs2
+                            whoIsMerged.add(dfs2)
                             flagMerged=1
                             domain2=GraphPmod.getDomains(candidateSetPrevious[i][1])
                             domain1=GraphPmod.getDomains(candidateSetPrevious[k][1])
@@ -90,18 +97,22 @@ def frequentSubG(graph,graphLabel,thr,size):
                                 #break
                             for toA in toAdd:
                                 candidateSetPrevious[k][1][toA[0]]=toA[1]
-            if(flagMerged==1 or (flagMerged==0 and k not in whoIsMerged)):
+            #if(flagMerged==1 or (flagMerged==0 and k not in whoIsMerged)):
+                #if(flagMerged==0):
+                    #print "ALONE",dfs1
                 mergedResult.append(copy.deepcopy(candidateSetPrevious[k]))
-                whoIsMerged.add(k)
-            
+            #mergedResult.append(copy.deepcopy(candidateSetPrevious[k]))
+            #whoIsMerged.add(k)
+
 
         p=0
         for el in mergedResult:
             GraphPmod.printResult(el[0],el[1],p)
             p+=1
-        print("Number of merged solution -> ",p)
-        print("Number of total solution -> ",len(candidateSetPrevious))
-        print("Number of relation -> ",iterations)
+
+        print("Number of merged solutions -> ",len(mergedResult))
+        print("Number of total solutions -> ",len(candidateSetPrevious))
+        print("Number of relations -> ",iterations)
 
 
 #frequentEdges between label --> we are working with directed graph so the order matters
@@ -122,7 +133,7 @@ def countFrequentEdges(graph,graphLabel,thr):
     tempToDel=[k for k in fEdges if fEdges[k]<thr] #tempToDel contains all the edges that don't respect the threshold
     for k in tempToDel: del fEdges[k]
     #return fEdgesvisitM.append(DFS_Visit(graph,graphLabel,x,discovery,couple,visit,time)[0])
-    print("NUMBER OF EDGES ",NOR)
+    #print("NUMBER OF EDGES ",NOR)
     return fEdges
 
 
